@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart | Saad Fabrics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="loaded">
+
+  <div class="live-bar"><span class="live-dot"></span> <span><span class="live-count" id="live-count">1247</span> viewing now</span></div>
+  <div class="announcement">
+    <p>🔥 Flat 56% OFF | Delivery in 2-3 Business Days All Over Pakistan</p>
+  </div>
+
+  <header class="header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">Saad Fabrics</a>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="gents-shawl-collection.html">Gents Shawls</a>
+        <a href="cart.html" class="active">Cart <span class="cart-count">0</span></a>
+      </nav>
+      <a href="https://wa.me/923226083653" class="whatsapp-btn header-wa" target="_blank">WhatsApp</a>
+    </div>
+  </header>
+
+  <section class="cart-section">
+    <div class="container">
+      <h1 class="page-title">Your Cart</h1>
+      
+      <div id="cart-empty" class="cart-empty" style="display:none;">
+        <p>Cart khali hai</p>
+        <a href="gents-shawl-collection.html" class="btn-primary">Shop Collection</a>
+      </div>
+
+      <div id="cart-content">
+        <div class="cart-table-wrap">
+          <table class="cart-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Total</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="cart-body">
+            </tbody>
+          </table>
+        </div>
+
+        <div class="cart-summary">
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span id="cart-subtotal">Rs 0</span>
+          </div>
+          <div class="summary-row" id="cart-discount-row" style="display:none;color:#16a34a;">
+            <span id="cart-discount-label">Bulk Discount</span>
+            <span id="cart-discount">- Rs 0</span>
+          </div>
+          <div class="summary-row">
+            <span>Delivery</span>
+            <span class="free">Free (2-3 Days)</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total</span>
+            <span id="cart-total">Rs 0</span>
+          </div>
+          <a href="checkout.html" class="btn-primary btn-block">Proceed to Checkout →</a>
+          <a href="gents-shawl-collection.html" class="btn-link">← Continue Shopping</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p><strong>Saad Fabrics</strong> | WhatsApp: 0322-6083653</p>
+      <p>© 2026 Saad Fabrics. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <script src="cart.js"></script>
+  <script>
+    function renderCart() {
+      const cart = getCart();
+      const emptyEl = document.getElementById('cart-empty');
+      const contentEl = document.getElementById('cart-content');
+      const body = document.getElementById('cart-body');
+
+      if (cart.length === 0) {
+        emptyEl.style.display = 'block';
+        contentEl.style.display = 'none';
+        return;
+      }
+
+      emptyEl.style.display = 'none';
+      contentEl.style.display = 'block';
+
+      body.innerHTML = cart.map(item => `
+        <tr>
+          <td class="cart-product">
+            <img src="${item.image}" alt="${item.name}">
+            <div>
+              <strong>${item.name}</strong>
+              <small>Gents Soft Wool Shawl</small>
+            </div>
+          </td>
+          <td>Rs ${(item.price || 2300).toLocaleString()}</td>
+          <td>
+            <div class="qty-control">
+              <button onclick="updateQty('${item.id}', -1)">−</button>
+              <span>${item.qty}</span>
+              <button onclick="updateQty('${item.id}', 1)">+</button>
+            </div>
+          </td>
+          <td><strong>Rs ${((item.price || 2300) * item.qty).toLocaleString()}</strong></td>
+          <td><button class="remove-btn" onclick="removeFromCart('${item.id}')">✕</button></td>
+        </tr>
+      `).join('');
+
+      const qty = getCartCount();
+      const sub = (typeof getCartListSubtotal === 'function' ? getCartListSubtotal() : getCartSubtotal());
+      const total = getCartTotal();
+      const disc = getCartDiscountAmount();
+      document.getElementById('cart-subtotal').textContent = 'Rs ' + sub.toLocaleString();
+      document.getElementById('cart-total').textContent = 'Rs ' + total.toLocaleString();
+      const drow = document.getElementById('cart-discount-row');
+      if (disc > 0) {
+        drow.style.display = 'flex';
+        document.getElementById('cart-discount-label').textContent = getTierLabel(qty);
+        document.getElementById('cart-discount').textContent = '- Rs ' + disc.toLocaleString();
+      } else {
+        drow.style.display = 'none';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateCartCount();
+      renderCart();
+    });
+  </script>
+
+  <div id="chatbot" class="chatbot">
+    <div class="chat-header" onclick="toggleChat()">
+      <span>🥿 Shawl Helper</span>
+      <span class="chat-close">×</span>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <div class="bot-msg">Assalamualaikum! Main aapko <strong>Gents Soft Wool Shawls</strong> ke baare mein batata hoon.<br><br>
+        • 1=Rs2300 | 2=10% | 3=15% | 4+=20%<br>
+        • Size: 3 Yard • Width: 1.25 Yard<br>
+        • Soft Wool + Box Packaging<br>
+        • Delivery in 2-3 Business Days</div>
+    </div>
+    <div class="chat-quick">
+      <button onclick="botReply('details')">Shawl Details</button>
+      <button onclick="botReply('price')">Price</button>
+      <button onclick="botReply('order')">Order kaise?</button>
+      <button onclick="botReply('whatsapp')">WhatsApp</button>
+    </div>
+  </div>
+  <button class="chat-agent-btn" id="chat-agent-btn" onclick="openChat()" title="Shawl Helper">
+    <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/><path d="M7 9h10v2H7zm0-3h10v2H7zm0 6h7v2H7z"/></svg>
+  </button>
+  <a href="https://wa.me/923226083653?text=Assalamualaikum%2C%20mujhe%20Gents%20Shawl%20order%20karna%20hai" class="floating-wa" target="_blank" title="Order on WhatsApp">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+  <script>
+    function openChat() {
+      document.getElementById('chatbot').classList.add('open');
+      document.getElementById('chat-agent-btn').style.display = 'none';
+    }
+    function toggleChat() {
+      document.getElementById('chatbot').classList.remove('open');
+      document.getElementById('chat-agent-btn').style.display = 'flex';
+    }
+    function botReply(type) {
+      const body = document.getElementById('chat-body');
+      let msg = '';
+      if (type === 'details') msg = '<strong>Gents Soft Wool Shawl:</strong><br>Soft Wool • 3 Yard • 1.25 Yard • Box Packaging • Color & Stuff Guaranteed';
+      else if (type === 'price') msg = '<strong>Offers:</strong> 1=Rs2300, 2=10% OFF, 3=15% OFF, 4+=20% OFF';
+      else if (type === 'order') msg = 'Cart se checkout karein ya WhatsApp pe message karein.';
+      else if (type === 'whatsapp') msg = '<a href="https://wa.me/923226083653" target="_blank"><strong>0322-6083653</strong></a>';
+      body.innerHTML += '<div class="bot-msg">'+msg+'</div>';
+      body.scrollTop = body.scrollHeight;
+    }
+  </script>
+
+  <script>
+    (function(){
+      const el = document.getElementById('live-count');
+      if(!el) return;
+      let n = 1000 + Math.floor(Math.random()*800);
+      el.textContent = n.toLocaleString();
+      setInterval(() => {
+        n += Math.floor(Math.random()*25) - 10;
+        if(n < 1000) n = 1050 + Math.floor(Math.random()*150);
+        if(n > 2000) n = 1700 + Math.floor(Math.random()*200);
+        el.textContent = n.toLocaleString();
+      }, 3500 + Math.random()*2500);
+    })();
+  </script>
+</body>
+</html>
