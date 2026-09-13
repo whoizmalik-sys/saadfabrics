@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout | Saad Fabrics</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="loaded">
+<div class="announcement"><p>COD + Advance Payment Available | Delivery 2-3 Business Days</p></div>
+<header class="header"><div class="container header-inner">
+<a href="index.html" class="logo">Saad Fabrics</a>
+<nav class="nav">
+<a href="index.html">Home</a>
+<a href="gents-shawl-collection.html">Gents Shawls</a>
+<a href="cart.html">Cart <span class="cart-count">0</span></a>
+</nav>
+<a href="https://wa.me/923226083653" class="whatsapp-btn header-wa" target="_blank">WhatsApp</a>
+</div></header>
+<section class="checkout-section"><div class="container checkout-grid">
+<div class="checkout-form-wrap">
+<h1 class="page-title">Delivery Address</h1>
+<form id="checkout-form" onsubmit="return submitOrder(event)">
+<div class="form-group"><label>Full Name *</label><input type="text" id="name" required placeholder="Aapka poora naam"></div>
+<div class="form-group"><label>WhatsApp / Phone *</label><input type="tel" id="phone" required placeholder="03XX-XXXXXXX"></div>
+<div class="form-group"><label>City *</label><input type="text" id="city" required placeholder="Lahore, Karachi..."></div>
+<div class="form-group"><label>Complete Address *</label><textarea id="address" required rows="3"></textarea></div>
+<div class="form-group payment-group"><label>Payment Method *</label>
+<div class="payment-options">
+<label class="pay-option"><input type="radio" name="payment" value="cod" checked onchange="onPaymentChange()"><span class="pay-card"><strong>Cash on Delivery</strong><br><small>Delivery pe payment</small></span></label>
+<label class="pay-option"><input type="radio" name="payment" value="partial" onchange="onPaymentChange()"><span class="pay-card"><strong>50% Advance + 50% COD</strong><br><small>Aadha ab, aadha delivery pe</small></span></label>
+<label class="pay-option"><input type="radio" name="payment" value="full" onchange="onPaymentChange()"><span class="pay-card"><strong>Full Advance — Extra 5% OFF</strong><br><small>Poori payment pehle</small></span></label>
+</div></div>
+<div class="advance-box" id="advance-box" style="display:none;">
+<h4>Accounts (Title: <strong>SAAD ALI</strong>)</h4>
+<div class="pay-acc"><span>JazzCash</span><strong>0370-4917895</strong></div>
+<div class="pay-acc"><span>EasyPaisa</span><strong>0370-4917895</strong></div>
+<div class="pay-acc"><span>Meezan Bank</span><strong>00300110366689</strong></div>
+<p class="advance-note" id="advance-note"></p>
+</div>
+<div class="form-group"><label>Notes (optional)</label><textarea id="notes" rows="2"></textarea></div>
+<button type="submit" class="btn-primary btn-block btn-whatsapp">Place Order on WhatsApp</button>
+</form>
+</div>
+<div class="order-summary">
+<h2>Order Summary</h2>
+<div id="summary-items"></div>
+<div class="summary-totals">
+<div class="summary-row"><span>Subtotal</span><span id="summary-subtotal">Rs 0</span></div>
+<div class="summary-row" id="summary-discount-row" style="display:none;color:#16a34a"><span id="summary-discount-label">Discount</span><span id="summary-discount">- Rs 0</span></div>
+<div class="summary-row" id="summary-advance-row" style="display:none;color:#16a34a"><span>Full Advance 5% OFF</span><span id="summary-advance-disc">- Rs 0</span></div>
+<div class="summary-row"><span>Delivery</span><span class="free">Free (2-3 Days)</span></div>
+<div class="summary-row total"><span>Total</span><span id="summary-total">Rs 0</span></div>
+</div>
+</div>
+</div></section>
+<footer class="footer"><div class="container"><p><strong>Saad Fabrics</strong> | 0322-6083653</p></div></footer>
+<script src="cart.js"></script>
+<script>
+function getSelectedPayment(){var el=document.querySelector('input[name="payment"]:checked');return el?el.value:'cod';}
+function getOrderTotals(){
+  var qty=getCartCount(),sub=getCartSubtotal(),total=getCartTotal(),bulkDisc=getCartDiscountAmount();
+  var advanceDisc=0,pay=getSelectedPayment();
+  if(pay==='full'){advanceDisc=Math.round(total*0.05);total-=advanceDisc;}
+  var payNow=0,payLater=0;
+  if(pay==='full'){payNow=total;}else if(pay==='partial'){payNow=Math.round(total/2);payLater=total-payNow;}else{payLater=total;}
+  return {qty:qty,sub:sub,total:total,bulkDisc:bulkDisc,advanceDisc:advanceDisc,pay:pay,payNow:payNow,payLater:payLater};
+}
+function onPaymentChange(){
+  var t=getOrderTotals(),box=document.getElementById('advance-box'),note=document.getElementById('advance-note');
+  if(t.pay==='cod'){box.style.display='none';}
+  else{box.style.display='block';
+    note.innerHTML=t.pay==='partial'
+      ?('Abhi <strong>Rs '+t.payNow.toLocaleString()+'</strong> transfer karein. Baqi delivery pe.')
+      :('Full <strong>Rs '+t.payNow.toLocaleString()+'</strong> transfer karein (5% OFF applied).');
+  }
+  renderSummary();
+}
+function renderSummary(){
+  var cart=getCart();
+  if(!cart.length){window.location.href='cart.html';return;}
+  document.getElementById('summary-items').innerHTML=cart.map(function(item){
+    return '<div class="summary-item"><img src="'+item.image+'" alt=""><div><strong>'+item.name+'</strong><br>Qty: '+item.qty+'</div></div>';
+  }).join('');
+  var t=getOrderTotals();
+  document.getElementById('summary-subtotal').textContent='Rs '+t.sub.toLocaleString();
+  document.getElementById('summary-total').textContent='Rs '+t.total.toLocaleString();
+  var drow=document.getElementById('summary-discount-row');
+  if(t.bulkDisc>0){drow.style.display='flex';document.getElementById('summary-discount').textContent='- Rs '+t.bulkDisc.toLocaleString();document.getElementById('summary-discount-label').textContent=getTierLabel(t.qty);}
+  else drow.style.display='none';
+  var arow=document.getElementById('summary-advance-row');
+  if(t.advanceDisc>0){arow.style.display='flex';document.getElementById('summary-advance-disc').textContent='- Rs '+t.advanceDisc.toLocaleString();}
+  else arow.style.display='none';
+}
+function submitOrder(e){
+  e.preventDefault();
+  var name=document.getElementById('name').value.trim();
+  var phone=document.getElementById('phone').value.trim();
+  var city=document.getElementById('city').value.trim();
+  var address=document.getElementById('address').value.trim();
+  var notes=document.getElementById('notes').value.trim();
+  if(!name||!phone||!city||!address){alert('Please fill all required fields');return false;}
+  var cart=getCart(),t=getOrderTotals();
+  var payLabel=t.pay==='cod'?'Cash on Delivery':(t.pay==='partial'?'50% Advance + 50% COD':'Full Advance (5% OFF)');
+  var msg='*New Order - Saad Fabrics*%0A%0A*Customer:*%0AName: '+name+'%0APhone: '+phone+'%0ACity: '+city+'%0AAddress: '+address;
+  if(notes)msg+='%0ANotes: '+notes;
+  msg+='%0A%0A*Items:*%0A';
+  cart.forEach(function(item,i){msg+=(i+1)+'. '+item.name+' x '+item.qty+'%0A';});
+  msg+='%0ASubtotal: Rs '+t.sub.toLocaleString()+'%0A';
+  if(t.bulkDisc>0)msg+='Bulk Discount: -Rs '+t.bulkDisc.toLocaleString()+'%0A';
+  if(t.advanceDisc>0)msg+='Advance 5% OFF: -Rs '+t.advanceDisc.toLocaleString()+'%0A';
+  msg+='*Total: Rs '+t.total.toLocaleString()+'*%0A%0A*Payment: '+payLabel+'*%0A';
+  if(t.pay!=='cod')msg+='Pay Now: Rs '+t.payNow.toLocaleString()+'%0AAccounts (SAAD ALI): JazzCash/EasyPaisa 03704917895 | Meezan 00300110366689%0A';
+  msg+='%0AFree Delivery (2-3 Days)%0APlease confirm. Thank you!';
+  window.open('https://wa.me/923226083653?text='+msg,'_blank');
+  return false;
+}
+document.addEventListener('DOMContentLoaded',function(){updateCartCount();renderSummary();onPaymentChange();});
+</script>
+</body>
+</html>
